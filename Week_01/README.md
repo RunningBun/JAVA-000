@@ -202,3 +202,69 @@
         rovider-3.3.9.jar;D:/Program Files/JetBrains/IntelliJ IDEA 2019.1/lib/util.jar;D:/Program Files/JetBrains/IntelliJ IDEA 2019.1/lib/netty-resolver-4.1.32.Final.jar;D:/Program Files/JetBrains/IntelliJ IDEA 2019.1/lib/nanoxml-2.2.3.jar;D:/Program Files/JetBrains/Intel
         liJ IDEA 2019.1/lib/aether-connector-basic-1.1.0.jar;D:/Program Files/JetBrains/IntelliJ IDEA 2019.1/lib/commons-lang3-3.4.jar;D:/Program Files/JetBrains/IntelliJ IDEA 2019.1/lib/aether-util-1.1.0.jar;D:/Progr
     ```
+- #### 使用G1 GC分析JVM
+    - 运行命令```jps -l``` 
+    - 返回结果
+    ```
+        42740 org.jetbrains.kotlin.daemon.KotlinCompileDaemon
+        51764
+        42824 com.scil.oil.management.OilManagementApplication
+        45352 sun.tools.jps.Jps
+        46248 org.jetbrains.jps.cmdline.Launcher
+        52776 org.jetbrains.jps.cmdline.Launcher
+    ```
+
+    - 运行命令```jmap -heap 42824``
+    - 返回结果
+    ```
+        Attaching to process ID 42824, please wait...
+        Debugger attached successfully.
+        Server compiler detected.
+        JVM version is 25.241-b07
+        
+        using thread-local object allocation.
+        Garbage-First (G1) GC with 6 thread(s)
+        
+        Heap Configuration:
+           MinHeapFreeRatio         = 40
+           MaxHeapFreeRatio         = 70
+           MaxHeapSize              = 4250927104 (4054.0MB)
+           NewSize                  = 1363144 (1.2999954223632812MB)
+           MaxNewSize               = 2550136832 (2432.0MB)
+           OldSize                  = 5452592 (5.1999969482421875MB)
+           NewRatio                 = 2
+           SurvivorRatio            = 8
+           MetaspaceSize            = 21807104 (20.796875MB)
+           CompressedClassSpaceSize = 1073741824 (1024.0MB)
+           MaxMetaspaceSize         = 17592186044415 MB
+           G1HeapRegionSize         = 1048576 (1.0MB)
+        
+        Heap Usage:
+        G1 Heap:
+           regions  = 4054
+           capacity = 4250927104 (4054.0MB)
+           used     = 222822392 (212.49999237060547MB)
+           free     = 4028104712 (3841.5000076293945MB)
+           5.241736368293179% used
+        G1 Young Generation:
+        Eden Space:
+           regions  = 127
+           capacity = 143654912 (137.0MB)
+           used     = 133169152 (127.0MB)
+           free     = 10485760 (10.0MB)
+           92.7007299270073% used
+        Survivor Space:
+           regions  = 13
+           capacity = 13631488 (13.0MB)
+           used     = 13631488 (13.0MB)
+           free     = 0 (0.0MB)
+           100.0% used
+        G1 Old Generation:
+           regions  = 73
+           capacity = 109051904 (104.0MB)
+           used     = 76021752 (72.49999237060547MB)
+           free     = 33030152 (31.50000762939453MB)
+           69.71153112558218% used
+        
+        35528 interned Strings occupying 4040176 bytes.
+    ```
