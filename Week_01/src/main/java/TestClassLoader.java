@@ -34,6 +34,13 @@ public class TestClassLoader extends ClassLoader {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                inputStream.close();
+                byteArrayOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         byte[] readBytes = byteArrayOutputStream.toByteArray();
         byte[] result = new byte[readBytes.length];
