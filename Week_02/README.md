@@ -163,3 +163,33 @@
             - GC concurrent-mark-end：并发标记结束
             - GC remark：再次标记
             - GC cleanup：清理
+
+- ### 使用压测工具（wrk或sb），演练gateway-server-0.0.1-SNAPSHOT.jar
+    - 运行命令```java -jar -XX:+UseG1GC gateway-server-0.0.1-SNAPSHOT.jar```
+    - 运行结果：启动 gateway-server-0.0.1-SNAPSHOT.jar
+    - 运行命令```sb -u http://localhost:8088/api/hello -c 20 -N 60```
+    - 运行结果：
+    ```
+        Starting at 2020/10/28 16:30:53
+        [Press C to stop the test]
+        233596  (RPS: 3649.8)
+        ---------------Finished!----------------
+        Finished at 2020/10/28 16:31:57 (took 00:01:04.1407631)
+        Status 200:    233596
+        
+        RPS: 3821.8 (requests/second)
+        Max: 77ms
+        Min: 0ms
+        Avg: 0.4ms
+        
+          50%   below 0ms
+          60%   below 0ms
+          70%   below 0ms
+          80%   below 0ms
+          90%   below 1ms
+          95%   below 3ms
+          98%   below 5ms
+          99%   below 6ms
+        99.9%   below 12ms
+    ```
+
