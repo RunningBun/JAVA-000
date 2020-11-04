@@ -1,6 +1,6 @@
-package io.github.kimmking.gateway.inbound;
+package com.luo.gateway.inbound;
 
-import io.github.kimmking.gateway.outbound.httpclient4.HttpOutboundHandler;
+import com.luo.gateway.outbound.okhttp.OkhttpOutboundHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -12,13 +12,13 @@ public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(HttpInboundHandler.class);
     private final String proxyServer;
-    private HttpOutboundHandler handler;
-    
+    private OkhttpOutboundHandler handler;
+
     public HttpInboundHandler(String proxyServer) {
         this.proxyServer = proxyServer;
-        handler = new HttpOutboundHandler(this.proxyServer);
+        handler = new OkhttpOutboundHandler(this.proxyServer);
     }
-    
+
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
@@ -27,17 +27,17 @@ public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
-            //logger.info("channelRead娴侀噺鎺ュ彛璇锋眰寮�濮嬶紝鏃堕棿涓簕}", startTime);
+            //logger.info("channelRead流量接口请求开始，时间为{}", startTime);
             FullHttpRequest fullRequest = (FullHttpRequest) msg;
 //            String uri = fullRequest.uri();
-//            //logger.info("鎺ユ敹鍒扮殑璇锋眰url涓簕}", uri);
+//            //logger.info("接收到的请求url为{}", uri);
 //            if (uri.contains("/test")) {
 //                handlerTest(fullRequest, ctx);
 //            }
-    
+
             handler.handle(fullRequest, ctx);
-    
-        } catch(Exception e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             ReferenceCountUtil.release(msg);
@@ -53,7 +53,7 @@ public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
 //            response.headers().setInt("Content-Length", response.content().readableBytes());
 //
 //        } catch (Exception e) {
-//            logger.error("澶勭悊娴嬭瘯鎺ュ彛鍑洪敊", e);
+//            logger.error("处理测试接口出错", e);
 //            response = new DefaultFullHttpResponse(HTTP_1_1, NO_CONTENT);
 //        } finally {
 //            if (fullRequest != null) {

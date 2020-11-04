@@ -1,4 +1,4 @@
-package io.github.kimmking.gateway.inbound;
+package com.luo.gateway.inbound;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -18,7 +18,7 @@ public class HttpInboundServer {
     private static Logger logger = LoggerFactory.getLogger(HttpInboundServer.class);
 
     private int port;
-    
+
     private String proxyServer;
 
     public HttpInboundServer(int port, String proxyServer) {
@@ -43,11 +43,13 @@ public class HttpInboundServer {
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO)).childHandler(new HttpInboundInitializer(this.proxyServer));
+            b.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .handler(new LoggingHandler(LogLevel.INFO))
+                    .childHandler(new HttpInboundInitializer(this.proxyServer));
 
             Channel ch = b.bind(port).sync().channel();
-            logger.info("寮�鍚痭etty http鏈嶅姟鍣紝鐩戝惉鍦板潃鍜岀鍙ｄ负 http://127.0.0.1:" + port + '/');
+            logger.info("开启netty http服务器，监听地址和端口为 http://127.0.0.1:" + port + '/');
             ch.closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
