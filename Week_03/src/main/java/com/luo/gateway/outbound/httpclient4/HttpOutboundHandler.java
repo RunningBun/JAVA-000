@@ -1,7 +1,7 @@
 package com.luo.gateway.outbound.httpclient4;
 
 
-import com.luo.gateway.outbound.NamedThreadFactory;
+import com.luo.gateway.outbound.AbstractOutBoundHandler;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,50 +18,42 @@ import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-public class HttpOutboundHandler {
+public class HttpOutboundHandler extends AbstractOutBoundHandler {
 
     private CloseableHttpAsyncClient httpclient;
-    private ExecutorService proxyService;
-    private String backendUrl;
 
-    public HttpOutboundHandler(String backendUrl){
-        this.backendUrl = backendUrl.endsWith("/")?backendUrl.substring(0,backendUrl.length()-1):backendUrl;
-        int cores = Runtime.getRuntime().availableProcessors() * 2;
-        long keepAliveTime = 1000;
-        int queueSize = 2048;
-        RejectedExecutionHandler handler = new ThreadPoolExecutor.CallerRunsPolicy();//.DiscardPolicy();
-        proxyService = new ThreadPoolExecutor(cores, cores,
-                keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(queueSize),
-                new NamedThreadFactory("proxyService"), handler);
+    public HttpOutboundHandler(String backendUrl) {
+        super(backendUrl);
 
         IOReactorConfig ioConfig = IOReactorConfig.custom()
                 .setConnectTimeout(1000)
                 .setSoTimeout(1000)
-                .setIoThreadCount(cores)
+                .setIoThreadCount(Runtime.getRuntime().availableProcessors() * 2)
                 .setRcvBufSize(32 * 1024)
                 .build();
 
         httpclient = HttpAsyncClients.custom().setMaxConnTotal(40)
                 .setMaxConnPerRoute(8)
                 .setDefaultIOReactorConfig(ioConfig)
-                .setKeepAliveStrategy((response,context) -> 6000)
+                .setKeepAliveStrategy((response, context) -> 6000)
                 .build();
         httpclient.start();
     }
 
+    @Override
     public void handle(final FullHttpRequest fullRequest, final ChannelHandlerContext ctx) {
         final String url = this.backendUrl + fullRequest.uri();
-        proxyService.submit(()->fetchGet(fullRequest, ctx, url));
+        proxyService.submit(() -> fetchGet(fullRequest, ctx, url));
     }
 
     private void fetchGet(final FullHttpRequest inbound, final ChannelHandlerContext ctx, final String url) {
-        final HttpGet httpGet = new HttpGet("www.baidu.com");
+        final HttpGet httpGet = new HttpGet(url);
         //httpGet.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
         httpGet.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
         httpclient.execute(httpGet, new FutureCallback<HttpResponse>() {

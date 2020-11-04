@@ -1,5 +1,6 @@
 package com.luo.gateway.outbound.okhttp;
 
+import com.luo.gateway.outbound.AbstractOutBoundHandler;
 import com.luo.gateway.outbound.NamedThreadFactory;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -21,28 +22,19 @@ import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-public class OkhttpOutboundHandler {
+public class OkhttpOutboundHandler extends AbstractOutBoundHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(OkhttpOutboundHandler.class);
 
     private OkHttpClient client;
-    private ExecutorService proxyService;
-    private String backendUrl;
 
     public OkhttpOutboundHandler(String backendUrl) {
-        this.backendUrl = backendUrl.endsWith("/") ? backendUrl.substring(0, backendUrl.length() - 1) : backendUrl;
-        int cores = Runtime.getRuntime().availableProcessors() * 2;
-        long keepAliveTime = 1000;
-        int queueSize = 2048;
-        RejectedExecutionHandler handler = new ThreadPoolExecutor.CallerRunsPolicy();
-        proxyService = new ThreadPoolExecutor(cores, cores,
-                keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(queueSize),
-                new NamedThreadFactory("proxyService"), handler);
+        super(backendUrl);
 
         client = new OkHttpClient();
-
     }
 
+    @Override
     public void handle(final FullHttpRequest fullRequest, final ChannelHandlerContext ctx) {
         final String url = this.backendUrl + fullRequest.uri();
         proxyService.submit(() -> request(fullRequest, ctx, url));
