@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
@@ -48,7 +49,13 @@ public class OkhttpOutboundHandler {
     }
 
     private void request(final FullHttpRequest inbound, final ChannelHandlerContext ctx, final String url) {
+        //获取到client请求的header，复制到后台服务请求的header中
+        Headers.Builder headers = new Headers.Builder();
+        for (Map.Entry<String, String> entry : inbound.headers()) {
+            headers.add(entry.getKey(), entry.getValue());
+        }
         Request request = new Request.Builder()
+                .headers(headers.build())
                 .get()
                 .url(url)
                 .build();

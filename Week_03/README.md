@@ -7,3 +7,7 @@
 ### 2.（选做）使用 netty 实现后端 http 访问（代替上一步骤）
  - 自定义```client.netty4.NettyHttpClient```类，用于代替OkHttpClient实现Http请求
  - 自定义```HttpClientInboundHandler```类，用于监听```NettyHttpClient```的请求回调
+
+### （必做）实现过滤器
+ - ```HttpInboundHandler```类实现```HttpRequestFilter```接口，自定义过滤器操作
+ - ```OkhttpOutboundHandler```类中，调动网络请求前，复制客户端请求的headers
