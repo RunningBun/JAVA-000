@@ -1,16 +1,14 @@
 package com.luo.gateway.outbound.netty4;
 
-import com.luo.gateway.outbound.httpclient4.NamedThreadFactory;
-import io.netty.buffer.Unpooled;
+import com.luo.client.netty4.NettyHttpClient;
+import com.luo.gateway.outbound.NamedThreadFactory;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
-import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.*;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
@@ -42,7 +40,6 @@ public class NettyHttpClientOutboundHandler {
                 new NamedThreadFactory("proxyService"), handler);
 
         nettyHttpClient = new NettyHttpClient();
-
     }
 
     public void handle(final FullHttpRequest fullRequest, final ChannelHandlerContext ctx) {
@@ -84,7 +81,7 @@ public class NettyHttpClientOutboundHandler {
 
     }
 
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    private void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
     }

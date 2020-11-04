@@ -1,9 +1,10 @@
-package com.luo.gateway.inbound;
+package com.luo.client.netty4;
 
-import com.luo.gateway.outbound.netty4.NettyHttpClient;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpResponse;
 
 public class HttpClientInboundHandler extends ChannelInboundHandlerAdapter {
 
@@ -24,6 +25,5 @@ public class HttpClientInboundHandler extends ChannelInboundHandlerAdapter {
             callBack.onResponse((HttpContent) msg);
         }
     }
-
 }
 

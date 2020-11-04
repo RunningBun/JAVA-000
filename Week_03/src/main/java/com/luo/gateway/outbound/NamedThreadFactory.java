@@ -1,4 +1,4 @@
-package com.luo.gateway.outbound.httpclient4;
+package com.luo.gateway.outbound;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

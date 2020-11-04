@@ -1,6 +1,6 @@
 package com.luo.gateway.outbound.okhttp;
 
-import com.luo.gateway.outbound.httpclient4.NamedThreadFactory;
+import com.luo.gateway.outbound.NamedThreadFactory;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
