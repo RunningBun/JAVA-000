@@ -76,26 +76,12 @@ public class OkhttpOutboundHandler {
     private void handleResponse(final FullHttpRequest fullRequest, final ChannelHandlerContext ctx, final Response endpointResponse) throws Exception {
         FullHttpResponse response = null;
         try {
-//            String value = "hello,kimmking";
-//            response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(value.getBytes("UTF-8")));
-//            response.headers().set("Content-Type", "application/json");
-//            response.headers().setInt("Content-Length", response.content().readableBytes());
-
-
             byte[] body = endpointResponse.body().bytes();
-//            System.out.println(new String(body));
-//            System.out.println(body.length);
 
             response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(body));
             response.headers().set("Content-Type", "application/json");
             List<String> headers = endpointResponse.headers("Content-Length");
-//            response.headers().setInt("Content-Length", (headers == null || headers.size() == 0) ? 0 : Integer.parseInt(headers.get(0)));
-
-//            for (Header e : endpointResponse.getAllHeaders()) {
-//                //response.headers().set(e.getName(),e.getValue());
-//                System.out.println(e.getName() + " => " + e.getValue());
-//            }
-
+            response.headers().setInt("Content-Length", (headers == null || headers.size() == 0) ? 0 : Integer.parseInt(headers.get(0)));
         } catch (Exception e) {
             e.printStackTrace();
             response = new DefaultFullHttpResponse(HTTP_1_1, NO_CONTENT);
@@ -105,12 +91,10 @@ public class OkhttpOutboundHandler {
                 if (!HttpUtil.isKeepAlive(fullRequest)) {
                     ctx.write(response).addListener(ChannelFutureListener.CLOSE);
                 } else {
-                    //response.headers().set(CONNECTION, KEEP_ALIVE);
                     ctx.write(response);
                 }
             }
             ctx.flush();
-            //ctx.close();
         }
 
     }

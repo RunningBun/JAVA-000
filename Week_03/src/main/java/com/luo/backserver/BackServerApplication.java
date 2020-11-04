@@ -1,7 +1,7 @@
 package com.luo.backserver;
 
 
-public class NettyServerApplication {
+public class BackServerApplication {
 
     public static void main(String[] args) {
 

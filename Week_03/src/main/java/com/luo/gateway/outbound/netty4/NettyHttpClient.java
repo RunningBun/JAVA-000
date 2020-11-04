@@ -1,17 +1,19 @@
 package com.luo.gateway.outbound.netty4;//package com.luo.gateway.outbound;
 
+import com.luo.gateway.inbound.HttpClientInboundHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.HttpRequestEncoder;
-import io.netty.handler.codec.http.HttpResponseDecoder;
+import io.netty.handler.codec.http.*;
 
 public class NettyHttpClient {
-    public void connect(String host, int port) throws Exception {
+
+    private CallBack callBack;
+
+    public void connect(String host, int port, String url, CallBack callBack) throws Exception {
+        this.callBack = callBack;
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {
@@ -26,25 +28,22 @@ public class NettyHttpClient {
                     ch.pipeline().addLast(new HttpResponseDecoder());
                     // 客户端发送的是httprequest，所以要使用HttpRequestEncoder进行编码
                     ch.pipeline().addLast(new HttpRequestEncoder());
-                    ch.pipeline().addLast(new NettyHttpClientOutboundHandler());
+                    ch.pipeline().addLast(new HttpClientInboundHandler(callBack));
                 }
             });
 
             // Start the client.
-//            ChannelFuture f = b.connect(host, port).sync();
-//
-//
-//            f.channel().write(request);
-//            f.channel().flush();
-//            f.channel().closeFuture().sync();
+            ChannelFuture f = b.connect(host, port).sync();
+            DefaultFullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url);
+            f.channel().write(request);
+            f.channel().flush();
+            f.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
         }
-
     }
 
-    public static void main(String[] args) throws Exception {
-        NettyHttpClient client = new NettyHttpClient();
-        client.connect("127.0.0.1", 8844);
+    public interface CallBack {
+        void onResponse(HttpContent content);
     }
 }

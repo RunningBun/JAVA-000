@@ -1,5 +1,7 @@
 package com.luo.gateway.inbound;
 
+import com.luo.gateway.outbound.httpclient4.HttpOutboundHandler;
+import com.luo.gateway.outbound.netty4.NettyHttpClientOutboundHandler;
 import com.luo.gateway.outbound.okhttp.OkhttpOutboundHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -12,11 +14,26 @@ public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(HttpInboundHandler.class);
     private final String proxyServer;
-    private OkhttpOutboundHandler handler;
+
+    /***
+     * 使用HttpClient的handler处理网关业务
+     */
+//    private HttpOutboundHandler handler;
+
+    /**
+     * 使用Okhttp的handler处理网关业务
+     * */
+//    private OkhttpOutboundHandler handler;
+
+    /**
+     * 使用自定义Netty Client的handler处理网关业务
+     */
+    private NettyHttpClientOutboundHandler handler;
 
     public HttpInboundHandler(String proxyServer) {
         this.proxyServer = proxyServer;
-        handler = new OkhttpOutboundHandler(this.proxyServer);
+//        handler = new OkhttpOutboundHandler(this.proxyServer);
+        handler = new NettyHttpClientOutboundHandler(this.proxyServer);
     }
 
     @Override
@@ -27,50 +44,14 @@ public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
-            //logger.info("channelRead流量接口请求开始，时间为{}", startTime);
             FullHttpRequest fullRequest = (FullHttpRequest) msg;
-//            String uri = fullRequest.uri();
-//            //logger.info("接收到的请求url为{}", uri);
-//            if (uri.contains("/test")) {
-//                handlerTest(fullRequest, ctx);
-//            }
 
+            //调用网关内部转发接口，这里使用了okHttp去访问内部服务
             handler.handle(fullRequest, ctx);
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             ReferenceCountUtil.release(msg);
         }
     }
-
-//    private void handlerTest(FullHttpRequest fullRequest, ChannelHandlerContext ctx) {
-//        FullHttpResponse response = null;
-//        try {
-//            String value = "hello,kimmking";
-//            response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(value.getBytes("UTF-8")));
-//            response.headers().set("Content-Type", "application/json");
-//            response.headers().setInt("Content-Length", response.content().readableBytes());
-//
-//        } catch (Exception e) {
-//            logger.error("处理测试接口出错", e);
-//            response = new DefaultFullHttpResponse(HTTP_1_1, NO_CONTENT);
-//        } finally {
-//            if (fullRequest != null) {
-//                if (!HttpUtil.isKeepAlive(fullRequest)) {
-//                    ctx.write(response).addListener(ChannelFutureListener.CLOSE);
-//                } else {
-//                    response.headers().set(CONNECTION, KEEP_ALIVE);
-//                    ctx.write(response);
-//                }
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-//        cause.printStackTrace();
-//        ctx.close();
-//    }
-
 }
